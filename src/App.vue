@@ -1,29 +1,12 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { invoke } from "@tauri-apps/api/core";
-
-import { exists, BaseDirectory, readTextFile, readDir } from '@tauri-apps/plugin-fs';
+import { readFile } from "./utils/fileUtils";
 
 import Board from "./components/Board.vue";
 
 // 检查 `$APPDATA/avatar.png` 文件是否存在
 //await exists('avatar.png', { baseDir: BaseDirectory.AppData });
-
-async function readFile(path: string) {
-  try {
-    console.log(await exists(path));
-    if( path.endsWith('\\') || path.endsWith('/') ){
-      const files = await readDir(path);
-      console.log(files);
-      return JSON.stringify(files);
-    }
-
-    return await readTextFile(path/*, { dir: BaseDirectory.AppData }*/);
-  } catch (error) {
-    alert('Error reading file');
-    console.error('Error reading file:', error);
-  }
-}
 
 const greetMsg = ref("");
 const name = ref("");

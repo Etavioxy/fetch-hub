@@ -26,6 +26,9 @@
         }
       ],
       "deny": []
-    }
+    },
+    "store:allow-load",
+    "store:default",
+    "dialog:default"
   ]
 }

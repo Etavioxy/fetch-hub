@@ -8,8 +8,9 @@
           <ConfigEntryView :entry="entry" @remove="removeEntry(group.id, $event)" />
         </li>
       </ul>
-      <button class="btn btn-primary mt-2" @click="addEntry(group.id)">Add Entry</button>
+      <label for="config-entry-modal" class="btn btn-primary mt-2" @click="setCurrentGroup(group.id)">Add Entry</label>
     </div>
+    <ConfigEntryModal @add="addEntry" />
   </main>
 </template>
 
@@ -18,40 +19,24 @@ import { ref } from 'vue';
 import { useConfigStore } from '../configStore';
 import { ConfigEntry } from '../types';
 import ConfigEntryView from './ConfigEntryView.vue';
+import ConfigEntryModal from './ConfigEntryModal.vue';
 
 const { configGroups, addConfigEntry, removeConfigEntry } = useConfigStore();
+const currentGroupId = ref<string | null>(null);
 
-function addEntry(groupId: string) {
-  const newEntry: ConfigEntry = {
-    id: Date.now().toString(),
-    path: 'path/to/config.yaml',
-    type: 'yaml',
-    description: 'New config entry',
-    content: {},
-  };
-  addConfigEntry(groupId, newEntry);
+function setCurrentGroup(groupId: string) {
+  currentGroupId.value = groupId;
+}
+
+function addEntry(entry: ConfigEntry) {
+  if (currentGroupId.value) {
+    addConfigEntry(currentGroupId.value, entry);
+  }
 }
 
 function removeEntry(groupId: string, entryId: string) {
   removeConfigEntry(groupId, entryId);
 }
-
-// Example data
-configGroups.value = [
-  {
-    id: 'group1',
-    name: 'Group 1',
-    entries: [
-      {
-        id: 'entry1',
-        path: 'path/to/config.json',
-        type: 'json',
-        description: 'Example JSON config',
-        content: {},
-      },
-    ],
-  },
-];
 </script>
 
 <style scoped>
