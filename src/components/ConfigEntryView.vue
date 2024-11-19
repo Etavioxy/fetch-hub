@@ -4,8 +4,9 @@
       <h3 class="card-title">{{ entry.path }}</h3>
       <p>Type: {{ entry.type }}</p>
       <p>Description: {{ entry.description }}</p>
+      {{ "KEY: " + entry.key }}
       <div v-if="showContent" class="mt-2">
-        <pre class="bg-gray-100 p-2 rounded">{{ content }}</pre>
+        <pre class="bg-gray-100 p-2 rounded max-h-48 overflow-auto whitespace-pre text-left">{{ JSON.stringify(content, null, 2) }}</pre>
       </div>
       <div class="card-actions justify-end">
         <div v-if="testResult !== null" class="mt-2">
@@ -16,6 +17,7 @@
         <button v-if="testResult" class="btn btn-secondary" @click="toggleContent">
           {{ showContent ? 'Hide' : 'Show' }} Content
         </button>
+        <button class="btn btn-warning" @click="editEntry">Edit</button>
         <button class="btn btn-error" @click="removeEntry">Remove</button>
       </div>
     </div>
@@ -25,22 +27,31 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { ConfigEntry } from '../types';
-import { testFilePath, readConfigFile } from '../utils/fileUtils';
+import { testFilePath, readTextFileObjectCached } from '../utils/fileUtils';
 
 const props = defineProps<{ entry: ConfigEntry }>();
-const emits = defineEmits(['remove']);
+const emits = defineEmits(['remove', 'edit']);
 
 const showContent = ref(false);
 const content = ref('');
 const testResult = ref<boolean | null>(null);
 
+function getObjectByKey(obj: any, key: string): any {
+  return key.split('.').reduce((o, k) => {
+    if (k.includes('[')) {
+      const [prop, index] = k.split(/\[|\]/).filter(Boolean);
+      return o[prop][parseInt(index, 10)];
+    }
+    return o[k];
+  }, obj);
+}
+
 async function toggleContent() {
   showContent.value = !showContent.value;
   if (showContent.value && !content.value) {
-    try {
-      content.value = await readConfigFile(props.entry.path, props.entry.type);
-    } catch (error) {
-      console.error('Error reading file content:', error);
+    const fileContent = await readTextFileObjectCached(props.entry.path, props.entry.type);
+    if (fileContent) {
+      content.value = getObjectByKey(fileContent, props.entry.key);
     }
   }
 }
@@ -60,5 +71,9 @@ onMounted(() => {
 
 function removeEntry() {
   emits('remove', props.entry.id);
+}
+
+function editEntry() {
+  emits('edit');
 }
 </script>

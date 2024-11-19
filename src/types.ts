@@ -4,6 +4,7 @@ export interface ConfigEntry {
   type: 'json' | 'yaml';
   description: string;
   content: any;
+  key: string;
 }
 
 export interface ConfigGroup {

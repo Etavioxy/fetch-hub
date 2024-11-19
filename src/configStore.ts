@@ -35,11 +35,23 @@ export function useConfigStore() {
       saveConfigGroups();
     }
   }
+  
+  function updateConfigEntry(groupId: string, updatedEntry: ConfigEntry) {
+    const group = configGroups.value.find(g => g.id === groupId);
+    if (group) {
+      const index = group.entries.findIndex(e => e.id === updatedEntry.id);
+      if (index !== -1) {
+        group.entries[index] = updatedEntry;
+        saveConfigGroups();
+      }
+    }
+  }
 
   return {
     configGroups,
     addConfigEntry,
     removeConfigEntry,
+    updateConfigEntry,
     loadConfigGroups,
   };
 }

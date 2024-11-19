@@ -7,10 +7,8 @@ export async function testFilePath(path: string): Promise<boolean> {
 
 export async function readFile(path: string) {
   try {
-    console.log(await exists(path));
     if( path.endsWith('\\') || path.endsWith('/') ){
       const files = await readDir(path);
-      console.log(files);
       return JSON.stringify(files);
     }
 
@@ -21,11 +19,34 @@ export async function readFile(path: string) {
   }
 }
 
-export async function readConfigFile(path: string, type: 'json' | 'yaml'): Promise<any> {
+async function readTextFileObject(path: string, type: 'json' | 'yaml'): Promise<any> {
+  if (type === 'json' && !path.endsWith('.json')) {
+    console.warn('File is not JSON:', path);
+  } else if (type === 'yaml' && !path.endsWith('.yaml')) {
+    console.warn('File is not YAML:', path);
+  }
+  
   const content = await readFile(path) as string;
+
   if (type === 'json') {
     return JSON.parse(content);
   } else if (type === 'yaml') {
     return yaml.load(content);
+  }
+}
+
+const pathContentMap = new Map<string, string>();
+
+export async function readTextFileObjectCached(path: string, type: 'json' | 'yaml'): Promise<any> {
+  if (pathContentMap.has(path)) {
+    return pathContentMap.get(path) || '';
+  } else {
+    try {
+      const fileContent = await readTextFileObject(path, type);
+      pathContentMap.set(path, fileContent);
+      return fileContent;
+    } catch (error) {
+      console.error('Error reading file content:', error);
+    }
   }
 }
