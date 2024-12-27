@@ -6,7 +6,7 @@
       <p>Description: {{ entry.description }}</p>
       {{ "KEY: " + entry.key }}
       <div v-if="showContent" class="mt-2">
-        <pre class="bg-gray-100 p-2 rounded max-h-48 overflow-auto whitespace-pre text-left">{{ JSON.stringify(content, null, 2) }}</pre>
+        <pre class="bg-gray-800 p-2 rounded max-h-48 overflow-auto whitespace-pre text-left">{{ content }}</pre>
       </div>
       <div class="card-actions justify-end">
         <div v-if="testResult !== null" class="mt-2">
@@ -27,10 +27,15 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { ConfigEntry } from '../types';
+import { invoke } from "@tauri-apps/api/core";
 import { testFilePath, readTextFileObjectCached } from '../utils/fileUtils';
 
 const props = defineProps<{ entry: ConfigEntry }>();
 const emits = defineEmits(['remove', 'edit']);
+
+async function human_json_stringify(json: string): Promise<string> {
+  return await invoke('human_read', { serialized: JSON.stringify(json), indent: 4, level: 2, linewidth: 90});
+}
 
 const showContent = ref(false);
 const content = ref('');
@@ -51,7 +56,7 @@ async function toggleContent() {
   if (showContent.value && !content.value) {
     const fileContent = await readTextFileObjectCached(props.entry.path, props.entry.type);
     if (fileContent) {
-      content.value = getObjectByKey(fileContent, props.entry.key);
+      content.value = await human_json_stringify(getObjectByKey(fileContent, props.entry.key));
     }
   }
 }

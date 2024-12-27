@@ -1,11 +1,18 @@
 import { exists, BaseDirectory, readTextFile, readDir } from '@tauri-apps/plugin-fs';
 import yaml from 'js-yaml';
 
-export async function testFilePath(path: string): Promise<boolean> {
+export {
+  testFilePath,
+  readFile,
+  readTextFileObject,
+  readTextFileObjectCached
+};
+
+async function testFilePath(path: string): Promise<boolean> {
   return await exists(path);
 }
 
-export async function readFile(path: string) {
+async function readFile(path: string) {
   try {
     if( path.endsWith('\\') || path.endsWith('/') ){
       const files = await readDir(path);
@@ -37,7 +44,7 @@ async function readTextFileObject(path: string, type: 'json' | 'yaml'): Promise<
 
 const pathContentMap = new Map<string, string>();
 
-export async function readTextFileObjectCached(path: string, type: 'json' | 'yaml'): Promise<any> {
+async function readTextFileObjectCached(path: string, type: 'json' | 'yaml'): Promise<any> {
   if (pathContentMap.has(path)) {
     return pathContentMap.get(path) || '';
   } else {

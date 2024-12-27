@@ -1,5 +1,6 @@
 <template>
   <main class="container mx-auto p-4">
+    <i></i>
     <h1 class="text-2xl font-bold mb-4">Configuration Manager</h1>
     <div v-for="group in configGroups" :key="group.id" class="config-group mb-6">
       <h2 class="text-xl font-semibold mb-2">{{ group.name }}</h2>
