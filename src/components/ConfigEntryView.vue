@@ -34,7 +34,7 @@ const props = defineProps<{ entry: ConfigEntry }>();
 const emits = defineEmits(['remove', 'edit']);
 
 async function human_json_stringify(json: string): Promise<string> {
-  return await invoke('human_read', { serialized: JSON.stringify(json), indent: 4, level: 2, linewidth: 90});
+  return await invoke('human_read', { serialized: JSON.stringify(json), indent: 4, level: 1, linewidth: 90});
 }
 
 const showContent = ref(false);
@@ -72,6 +72,7 @@ async function testPath() {
 
 onMounted(() => {
   testPath();
+  toggleContent();
 });
 
 function removeEntry() {

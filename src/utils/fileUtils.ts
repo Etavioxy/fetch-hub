@@ -33,12 +33,16 @@ async function readTextFileObject(path: string, type: 'json' | 'yaml'): Promise<
     console.warn('File is not YAML:', path);
   }
   
-  const content = await readFile(path) as string;
+  try {
+    const content = await readFile(path) as string;
 
-  if (type === 'json') {
-    return JSON.parse(content);
-  } else if (type === 'yaml') {
-    return yaml.load(content);
+    if (type === 'json') {
+      return JSON.parse(content);
+    } else if (type === 'yaml') {
+      return yaml.load(content);
+    }
+  } catch (error) {
+    console.error('Error reading file content:', error);
   }
 }
 
@@ -48,12 +52,8 @@ async function readTextFileObjectCached(path: string, type: 'json' | 'yaml'): Pr
   if (pathContentMap.has(path)) {
     return pathContentMap.get(path) || '';
   } else {
-    try {
-      const fileContent = await readTextFileObject(path, type);
-      pathContentMap.set(path, fileContent);
-      return fileContent;
-    } catch (error) {
-      console.error('Error reading file content:', error);
-    }
+    const fileContent = await readTextFileObject(path, type);
+    pathContentMap.set(path, fileContent);
+    return fileContent;
   }
 }

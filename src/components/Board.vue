@@ -1,17 +1,22 @@
 <template>
-  <main class="container mx-auto p-4">
-    <i></i>
-    <h1 class="text-2xl font-bold mb-4">Configuration Manager</h1>
-    <div v-for="group in configGroups" :key="group.id" class="config-group mb-6">
-      <h2 class="text-xl font-semibold mb-2">{{ group.name }}</h2>
-      <ul class="list-disc pl-5">
-        <li v-for="entry in group.entries" :key="entry.id" class="mb-2">
-          <ConfigEntryView :entry="entry" @remove="removeEntry(group.id, $event)" @edit="editEntry(group.id, entry)" />
-        </li>
-      </ul>
-      <label for="config-entry-modal" class="btn btn-primary mt-2" @click="setCurrentGroup(group.id)">Add Entry</label>
-    </div>
-    <ConfigEntryModal :entry="currentEntry" @add="addEntry" @update="updateEntry"  />
+  <main>
+    <TermEntry>
+      <div class="container">
+        <div class="sidebar">
+          <div v-for="(group, index) in configGroups" :key="group.id" :class="index % 2 === 0 ? 'dark' : ''">
+            <h2>{{ group.name }}</h2>
+            <Pa v-for="entry in group.entries" :key="entry.id" :execute="() => setNow(entry, group.id)">
+             {{ entry.path }}
+            </Pa>
+            <Pa :execute="() => setCurrentGroup(group.id)">Add Entry</Pa>
+          </div>
+        </div>
+        <div class="content">
+          <ConfigEntryView v-if="nowEntry && nowGroupId" :entry="nowEntry" @remove="removeEntry(nowGroupId, $event)" @edit="editEntry(nowGroupId, nowEntry)" />
+          <ConfigEntryModal :entry="currentEntry" @add="addEntry" @update="updateEntry"  />
+        </div>
+      </div>
+    </TermEntry>
   </main>
 </template>
 
@@ -21,6 +26,15 @@ import { useConfigStore } from '../configStore';
 import { ConfigEntry } from '../types';
 import ConfigEntryView from './ConfigEntryView.vue';
 import ConfigEntryModal from './ConfigEntryModal.vue';
+import { TermEntry, Pa } from 'termui-vue';
+
+const nowGroupId = ref<string | null>(null);
+const nowEntry = ref<ConfigEntry | null>(null);
+
+function setNow(entry: ConfigEntry, groupid: string) {
+  nowGroupId.value = groupid;
+  nowEntry.value = entry;
+}
 
 const { configGroups, addConfigEntry, removeConfigEntry, updateConfigEntry } = useConfigStore();
 const currentGroupId = ref<string | null>(null);
@@ -57,14 +71,20 @@ function editEntry(groupId: string, entry: ConfigEntry) {
 
 <style scoped>
 .container {
-  padding: 20px;
+  display: flex;
+  height: 100vh;
 }
 
-.config-group {
-  margin-bottom: 20px;
+.sidebar {
+  flex: 2;
+  border-right: 1px solid var(--subtle-color);
+  padding: 1em;
+  overflow-y: auto;
 }
 
-button {
-  margin-left: 10px;
+.content {
+  flex: 3;
+  padding: 1em;
+  overflow-y: auto;
 }
 </style>
