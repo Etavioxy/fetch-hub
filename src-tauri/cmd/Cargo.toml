@@ -1,0 +1,10 @@
+[package]
+name = "cmd"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+walkdir = "2.5.0"
+
+[dev-dependencies]
+tempfile = "3.18.0"

@@ -1,5 +1,5 @@
+use cmd;
 mod serialize;
-mod cmd;
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
@@ -14,7 +14,7 @@ fn human_read(serialized: &str, indent: usize, level: usize, linewidth: usize) -
 
 #[tauri::command]
 fn folder_size(folder_path: &str) -> u64 {
-	cmd::folder_size::folder_size(folder_path)
+	cmd::folder_size::folder_size(folder_path, cmd::folder_size::ExecOption::None)
 }
 
 #[tauri::command]
