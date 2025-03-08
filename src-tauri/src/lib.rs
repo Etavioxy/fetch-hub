@@ -14,7 +14,7 @@ fn human_read(serialized: &str, indent: usize, level: usize, linewidth: usize) -
 
 #[tauri::command]
 fn folder_size(folder_path: &str) -> u64 {
-	cmd::folder_size::folder_size(folder_path, cmd::folder_size::ExecOption::None)
+	cmd::folder_size::folder_size(folder_path, None)
 }
 
 #[tauri::command]

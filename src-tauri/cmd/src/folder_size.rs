@@ -4,11 +4,10 @@ use std::process::Command;
 
 #[derive(PartialEq, Eq, Debug)]
 pub enum ExecOption {
-	None,
 	ForceFallbackWalkdir
 }
 
-pub fn folder_size(path: &str, opt: ExecOption) -> u64 {
+pub fn folder_size(path: &str, opt: Option<ExecOption>) -> u64 {
 	let (args, multiplier) = if cfg!(target_os = "linux") {
 		(vec!["-s", "-b", path], 1)
 	} else if cfg!(target_os = "macos") {
@@ -18,7 +17,7 @@ pub fn folder_size(path: &str, opt: ExecOption) -> u64 {
 	};
 
 	let res = match opt {
-		ExecOption::ForceFallbackWalkdir => Err(std::io::Error::new(std::io::ErrorKind::NotFound, "du not found")),
+		Some(ExecOption::ForceFallbackWalkdir) => Err(std::io::Error::new(std::io::ErrorKind::NotFound, "du not found")),
 		_ => Command::new("du").args(&args).output()
 	};
 	
@@ -80,7 +79,7 @@ mod tests {
 		create_dir(dir_path);
 
         // 计算文件夹大小
-        let size = folder_size(&dir_path, ExecOption::None);
+        let size = folder_size(&dir_path, None);
 
         // 验证总大小是否正确 (5 + 200 = 205)
         assert_eq!(size, 205);
@@ -92,11 +91,9 @@ mod tests {
         let dir_path = dir.path().to_str().unwrap();
 		create_dir(dir_path);
 		
-        let size1 = folder_size(&dir_path, ExecOption::None);
-        let size2 = folder_size(&dir_path, ExecOption::ForceFallbackWalkdir);
+        let size1 = folder_size(&dir_path, None);
+        let size2 = folder_size(&dir_path, Some(ExecOption::ForceFallbackWalkdir));
 		
-		panic!();
-
 		assert_eq!(size1, size2);
 	}
 }
