@@ -3,17 +3,34 @@
     <TermEntry>
       <div class="container">
         <div class="sidebar">
-          <div v-for="(group, index) in configGroups" :key="group.id" :class="index % 2 === 0 ? 'dark' : ''">
+          <div
+            v-for="(group, index) in configGroups"
+            :key="group.id"
+            :class="index % 2 === 0 ? 'dark' : ''"
+          >
             <h2>{{ group.name }}</h2>
-            <Pa v-for="entry in group.entries" :key="entry.id" :execute="() => setNow(entry, group.id)">
-             {{ entry.path }}
+            <Pa
+              v-for="entry in group.entries"
+              :key="entry.id"
+              :execute="() => setCurrent(entry, group.id)"
+            >
+              {{ entry.path }}
             </Pa>
-            <Pa :execute="() => setCurrentGroup(group.id)">Add Entry</Pa>
+            <Pa :execute="() => setCurrentGroupForAddNew(group.id)">Add Entry</Pa>
           </div>
         </div>
         <div class="content">
-          <ConfigEntryView v-if="nowEntry && nowGroupId" :entry="nowEntry" @remove="removeEntry(nowGroupId, $event)" @edit="editEntry(nowGroupId, nowEntry)" />
-          <ConfigEntryModal :entry="currentEntry" @add="addEntry" @update="updateEntry"  />
+          <ConfigEntryView
+            v-if="currentEntry && currentGroupId"
+            :entry="currentEntry"
+            @remove="removeEntry(currentGroupId, $event)"
+            @edit="editEntry(currentGroupId, currentEntry)"
+          />
+          <ConfigEntryModal
+            :entry="currentEntry"
+            @add="addEntry"
+            @update="updateEntry"
+          />
         </div>
       </div>
     </TermEntry>
@@ -28,25 +45,25 @@ import ConfigEntryView from './ConfigEntryView.vue';
 import ConfigEntryModal from './ConfigEntryModal.vue';
 import { TermEntry, Pa } from 'termui-vue';
 
-const nowGroupId = ref<string | null>(null);
-const nowEntry = ref<ConfigEntry | null>(null);
-
-function setNow(entry: ConfigEntry, groupid: string) {
-  nowGroupId.value = groupid;
-  nowEntry.value = entry;
-}
-
-const { configGroups, addConfigEntry, removeConfigEntry, updateConfigEntry } = useConfigStore();
 const currentGroupId = ref<string | null>(null);
 const currentEntry = ref<ConfigEntry | null>(null);
 
-function setCurrentGroup(groupId: string) {
+function setCurrent(entry: ConfigEntry, groupId: string) {
+  currentGroupId.value = groupId;
+  currentEntry.value = entry;
+}
+
+function setCurrentGroupForAddNew(groupId: string) {
   currentGroupId.value = groupId;
   currentEntry.value = null;
+  document.getElementById('config-entry-modal')?.click();
 }
+
+const { configGroups, addConfigEntry, removeConfigEntry, updateConfigEntry } = useConfigStore();
 
 function addEntry(entry: ConfigEntry) {
   if (currentGroupId.value) {
+    console.log('Adding entry:', entry);
     addConfigEntry(currentGroupId.value, entry);
   }
 }

@@ -1,6 +1,6 @@
 <template>
 <div>
-  <Pcheckbox type="checkbox" id="config-entry-modal" class="modal-toggle" />
+  <input type="checkbox" id="config-entry-modal" class="modal-toggle" />
   <div class="modal">
     <TermEntry class="modal-box bg-light">
       <h3 class="font-bold text-lg">{{ entry ? 'Edit' : 'Add' }} Config Entry</h3>
@@ -20,8 +20,8 @@
         <P class="label-text">Type</P>
         </label>
         <Pselect v-model="type" class="select select-bordered" required>
-        <option value="json">JSON</option>
-        <option value="yaml">YAML</option>
+          <option value="json">JSON</option>
+          <option value="yaml">YAML</option>
         </Pselect>
       </div>
       <div class="form-control">
@@ -51,7 +51,7 @@
 import { ref, watch } from 'vue';
 import { ConfigEntry } from '../types';
 import { open } from '@tauri-apps/plugin-dialog';
-import { TermEntry, P, Pinput, Pcheckbox, Pselect } from 'termui-vue';
+import { TermEntry, P, Pinput, Pselect } from 'termui-vue';
 
 const props = defineProps<{ entry: ConfigEntry | null }>();
 const emit = defineEmits<{
@@ -60,7 +60,7 @@ const emit = defineEmits<{
 }>();
 
 const path = ref('');
-const type = ref<'json' | 'yaml'>('json');
+const type = ref<'json' | 'yaml'>('yaml');
 const description = ref('');
 const key = ref('');
 
