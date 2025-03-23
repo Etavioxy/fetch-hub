@@ -1,12 +1,6 @@
 use cmd;
 mod serialize;
 
-// Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
-
 #[tauri::command]
 fn human_read(serialized: &str, indent: usize, level: usize, linewidth: usize) -> String {
 	return serialize::human_read(serialized, indent, level, linewidth);
@@ -18,16 +12,8 @@ fn folder_size(folder_path: &str) -> u64 {
 }
 
 #[tauri::command]
-fn backup_folder(src: &str, dest: &str) -> Result<(), Box<dyn std::error::Error>> {
-    let mut options = fs_extra::dir::CopyOptions::new();
-    options.overwrite = true; // 如果目标路径已存在文件，则覆盖
-    fs_extra::dir::copy(src, dest, &options)?;
-    Ok(())
-}
-
-#[tauri::command]
-fn backup_folder_1(src: &str, dest: &str) -> String {
-    let res = backup_folder(src, dest);
+fn backup_folder(src: &str, dest: &str) -> String {
+    let res = cmd::backup_folder::backup_folder(src, dest);
     match res {
         Ok(_) => "success".to_string(),
         Err(e) => format!("error: {}", e),
@@ -42,10 +28,9 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_store::Builder::default().build())
         .invoke_handler(tauri::generate_handler![
-            greet,
             human_read,
             folder_size,
-            backup_folder_1
+            backup_folder
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
